@@ -1,0 +1,106 @@
+<!-- Razer Synapseのconectタブ右側にあるCHROMAアプリが有効になっていないとキーボードが写経用に光らない -->
+
+
+<!DOCTYPE html>
+<!-- xmlnsはxhtmlがどうだとか．ほかのマークアップ言語と要素が競合してるときとかにどうとからしい．消しても動いた -->
+<html lang="ja" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Source Code Typing for Lighting Keyboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="ChromaSDKImpl.js"></script>
+    <script src="KeyboardEffects.js"></script>
+
+
+    
+    <script type="text/javascript">
+        // ChromaSDKインスタンスを作った．chromaSDK.jsじゃなくてクラスがあるってことらしい
+        var chromaSDK = new ChromaSDK();
+    </script>
+</head>
+<!-- onloadはイベント属性と呼ばれるものらしい．読み込みに応じて何かできる． -->
+<!-- HTMLがすべて読み込まれたらonloadが示すものが実行されるらしい -->
+<!-- onunloadではページが閉じられたとき(バツが押された時とか) -->
+<body onload="chromaSDK.init()" onunload="chromaSDK.uninit()">
+    <!-- ボタンはボタン inputはtypeでfileが指定されているからファイル読み取りのフィールド？が表示される -->
+
+    <input type="text" id="inputField" placeholder="IDを入力"><button type="button" id="readButton" >名前を設定する</button>
+
+    <p>
+    <br>
+    <input  class="float-right" name="inputFile" type="file" id="file">
+    </p>
+    <script>
+        let subjectID = 'none'
+        // ボタンが押されたらテキストフィールドの値を取得する
+        document.getElementById('readButton').addEventListener('click', function(){
+            // テキストフィールドの値を取得
+            subjectID = document.getElementById('inputField').value;
+            alert('IDが設定されました');
+            document.body.style.backgroundColor = 'white';
+            inputCount = 0;
+
+        })
+
+
+        // これらはイベントハンドラ？DOM？とかいうやつかも
+        document.getElementById("file").addEventListener( 'change', function(e) {
+            // ファイルを取得する
+            var result = e.target.files[0];
+
+            // ファイルを読み込む
+            var reader = new FileReader();
+            reader.readAsText(result);
+
+            // ファイルが読み込まれた後の処理
+            reader.addEventListener('load', function() {
+                // Textareaを初期化する
+                InitTextarea(reader.result);
+            })
+
+        })
+
+        // キーが押されたら実行される処理
+        document.onkeypress = function(e) {
+            if (!down.includes(e.keyCode)) InputProcess(String.fromCharCode(e.charCode));
+
+
+        }
+
+        // document.onkeydown変数に関数オブジェクトを代入している？
+        // 関数の内容は，引数のkeyCodeが○○のとき．．．みたいな
+        document.onkeydown = function(e) {
+            switch (e.keyCode) {
+                case 9:
+                    e.preventDefault();
+                    TabProcess();
+                    break;
+                case 8:
+                    e.preventDefault();
+                    MissProcess();
+                    break;
+                case 13:
+                    // 押されたキーがエンターならこれらを実行する感じ？エンターが押されたらいつでも実行される？
+                    e.preventDefault();
+                    //エンタープロセスはここで実行されている
+                    EnterProcess();
+                    break;
+                case 32: // Space
+                    e.preventDefault();
+                    InputProcess(" ");
+                    break;
+                default:
+                    break;
+            } 
+        }
+    </script>
+    <!-- 以下の要素を段落として横に列挙する 途中でbrで下にずらす -->
+    <p>
+        <!-- テキストのエリアを表示させる それの題名 -->
+        <textarea cols="50" rows="1" style="overflow:hidden; border:none" readonly>【　サンプルコード　】</textarea>
+        <textarea cols="50" rows="1" style="overflow:hidden; border:none" readonly>【　写経中のコード　】</textarea><br>
+        <!-- コードを表示 入力する場所 -->
+        <textarea id="sample" cols="50" rows="30" readonly></textarea>
+        <textarea id="program" cols="50" rows="30" readonly></textarea>
+    </p>
+</body>
+</html>
